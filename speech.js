@@ -10,46 +10,52 @@
       de:'de-DE',fr:'fr-FR',es:'es-ES'})[tag.toLowerCase()] || tag;
   };
   const clearTimer = () => { clearTimeout(startupTimer); startupTimer = null; };
-  window.lingoStop = () => {
+  const stop = (notify = true) => {
     ticket++;
     clearTimer();
     const synth = window.speechSynthesis;
     // Avoid cancel() immediately before the very first idle speak on mobile.
     if (active || synth?.speaking || synth?.pending) synth?.cancel();
     active = null;
+    if (notify) window.lingoStopped?.();
   };
-  window.lingoSpeak = (text, language) => {
-    window.lingoStop();
+  window.lingoStop = () => stop();
+  window.lingoSpeak = (text, language, options = {}) => {
+    stop(!options.continueQueue);
     const current = ticket;
     const synth = window.speechSynthesis;
     if (!synth || !window.SpeechSynthesisUtterance) {
-      status('此瀏覽器不支援發音，請用 Chrome 或其他支援語音的瀏覽器開啟。'); return;
+      status('此瀏覽器不支援發音，請用 Chrome 或其他支援語音的瀏覽器開啟。'); options.onError?.(); return;
     }
     try {
       const utterance = new SpeechSynthesisUtterance(text);
       active = utterance;
       utterance.lang = locale(language);
-      utterance.rate = 1;
+      utterance.rate = Number(document.getElementById('speech-rate')?.value) || 1;
       // No voice-list gate and no forced voice. Android engines can speak even
       // when getVoices() is empty, incomplete, or uses different locale labels.
       utterance.onstart = () => {
         if (current !== ticket) return;
         clearTimer();
-
+        options.onStart?.();
       };
       utterance.onend = () => {
         if (current !== ticket) return;
         clearTimer(); active = null;
+        options.onEnd?.();
       };
       utterance.onerror = event => {
         if (current !== ticket) return;
         clearTimer(); active = null;
+        options.onError?.();
         const code = event.error || 'unknown';
         status(`發音失敗（${code}；${utterance.lang}）。請再點一次；若仍無聲，請把這段訊息與瀏覽器名稱提供給我們。`);
       };
 
       startupTimer = setTimeout(() => {
         if (current !== ticket || active !== utterance) return;
+        stop();
+        options.onError?.();
         status(`語音引擎尚未回應（${utterance.lang}）。請再點一次發音；若仍無聲，請告知瀏覽器名稱。`);
       }, 8000);
       // Stay in the original click handler to retain user activation.
@@ -57,6 +63,7 @@
       synth.speak(utterance);
     } catch (_) {
       clearTimer(); active = null;
+      options.onError?.();
       status('無法啟動發音，請重新點擊，或用手機 Chrome 直接開啟此頁。');
     }
   };
