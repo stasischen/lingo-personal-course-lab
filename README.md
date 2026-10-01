@@ -6,4 +6,4 @@ No API key, login, analytics or backend. Source inputs and imported content are 
 
 Static distribution of the shared Lingourmet prompt builder and personal_course.v1 validator. Generated JavaScript has no source map. Format validation does not certify naturalness or CEFR accuracy.
 
-Reading controls include sentence-by-sentence article playback, speed, highlighting, follow-scroll and sentence looping. Pause/continue restarts the current sentence for mobile compatibility. Selected-word flashcards and cloze practice are session-only; long-term scheduling belongs in the main app.
+Reading controls include sentence-by-sentence article playback, speed, highlighting, follow-scroll and sentence looping. Pause/continue restarts the current sentence for mobile compatibility. Selected-word flashcards and tap-based sentence building are session-only; long-term scheduling belongs in the main app.
