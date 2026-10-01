@@ -35,11 +35,11 @@
       utterance.onstart = () => {
         if (current !== ticket) return;
         clearTimer();
-        status(`正在發音（${utterance.lang}）：${text}`);
+
       };
       utterance.onend = () => {
         if (current !== ticket) return;
-        clearTimer(); active = null; status('發音完成。');
+        clearTimer(); active = null;
       };
       utterance.onerror = event => {
         if (current !== ticket) return;
@@ -47,7 +47,7 @@
         const code = event.error || 'unknown';
         status(`發音失敗（${code}；${utterance.lang}）。請再點一次；若仍無聲，請把這段訊息與瀏覽器名稱提供給我們。`);
       };
-      status(`正在啟動 ${utterance.lang} 發音…`);
+
       startupTimer = setTimeout(() => {
         if (current !== ticket || active !== utterance) return;
         status(`語音引擎尚未回應（${utterance.lang}）。請再點一次發音；若仍無聲，請告知瀏覽器名稱。`);
